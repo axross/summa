@@ -1,0 +1,8 @@
+node_modules
+/app/global.css
+/.cache
+/netlify/functions/server/build
+/public/build
+/storybook-static
+/.netlify
+.env
