@@ -52,8 +52,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: |
-            - Commit hash: 
+          body-includes: "- Commit hash: "
           direction: last
       - name: Update Deploy Result Comment - Started
         uses: peter-evans/create-or-update-comment@v1
