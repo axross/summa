@@ -89,6 +89,8 @@ jobs:
         run: echo "::set-output name=output_json::$(npx netlify deploy --json | tr -d '\n')"
       - name: Debug
         run: |
+          echo "${{ steps.netlify-deploy.outputs.output_json }}"
+          echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json) }}"
           echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json).deploy_url }}"
           echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json).logs }}"
       - name: Update Deploy Result Comment - Finished
