@@ -4,7 +4,7 @@ on:
 jobs:
   build:
     name: Build
-    uses: ${{ github.repository }}/.github/workflows/callable_build.yml@main
+    uses: axross/summalify/.github/workflows/callable_build.yml@main
   deploy:
     name: Deploy Snapshot
     runs-on: ubuntu-latest
