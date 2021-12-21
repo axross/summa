@@ -2,48 +2,19 @@ name: On Pull Request Create
 on:
   - pull_request
 jobs:
-  dry-build:
-    name: Dry Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14'
-      - name: Restore/cache npm packages
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-npm-packages
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install npm packages
-        run: npm ci
-      - name: Dry Build
-        run: npm run build
+  build:
+    name: Build
+    uses: ${{ github.repository }}/.github/workflows/callable_build.yml@main
   deploy:
-    name: Deploy
+    name: Deploy Snapshot
     runs-on: ubuntu-latest
     needs:
-      - dry-build
+      - build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: '14'
-      - name: Create Vercel Project JSON
-        run: mkdir .vercel && echo '${{ secrets.VERCEL_PROJECT_JSON }}' > .vercel/project.json
-      - name: Install Semantic Release
-        run: npm i semantic-release @semantic-release/exec conventional-changelog-conventionalcommits
-      - name: Semantic Release
-        id: semantic-release
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: npx --no-install semantic-release
       - name: Deploy to Netlify
         id: netlify-deploy
         run: |
