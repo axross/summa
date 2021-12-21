@@ -38,11 +38,13 @@ jobs:
     needs:
       - build
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
           node-version: '14'
-      - name: Restore/cache npm packages
+      - name: Restore/Cache npm Packages
         uses: actions/cache@v2
         env:
           cache-name: npm-packages
@@ -53,7 +55,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install npm packages
+      - name: Install npm Packages
         run: npm ci
       - name: Download Build Output
         uses: actions/download-artifact@v2
@@ -64,9 +66,9 @@ jobs:
         run: |
           output_json=$(npx --no-install netlify deploy --auth=${{ secrets.NETLIFY_ACCESS_TOKEN }} --json)
           echo "::debug::$output_json"
-          output_json="${output_json//$'\n'/\\n}"
-          echo "::debug::$output_json"
-          echo "::set-output name=output-json::$output_json"
+# output_json="${output_json//$'\n'/\\n}"
+# echo "::debug::$output_json"
+# echo "::set-output name=output-json::$output_json"
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
         uses: peter-evans/find-comment@v1
@@ -74,7 +76,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: has been deployed to Netlify. 
-      - name: Comment
+      - name: Comment Deploy Result
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
