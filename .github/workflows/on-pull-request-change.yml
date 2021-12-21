@@ -6,14 +6,16 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
           node-version: '14'
       - name: Restore/cache npm packages
         uses: actions/cache@v2
         env:
-          cache-name: cache-npm-packages
+          cache-name: npm-packages
         with:
           path: ~/.npm
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -25,6 +27,11 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Upload Build Output
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-output
+          path: public
   deploy:
     name: Deploy Snapshot
     runs-on: ubuntu-latest
@@ -35,11 +42,30 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '14'
+      - name: Restore/cache npm packages
+        uses: actions/cache@v2
+        env:
+          cache-name: npm-packages
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install npm packages
+        run: npm ci
+      - name: Download Build Output
+        uses: actions/download-artifact@v2
+        with:
+          name: build-output
       - name: Deploy to Netlify
         id: netlify-deploy
         run: |
           output_json=$(npx --no-install netlify deploy --auth=${{ secrets.NETLIFY_ACCESS_TOKEN }} --json)
+          echo "::debug::$output_json"
           output_json="${output_json//$'\n'/\\n}"
+          echo "::debug::$output_json"
           echo "::set-output name=output-json::$output_json"
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
@@ -58,4 +84,3 @@ jobs:
             
             - URL: ${{ fromJSON(steps.netlify-deploy.outputs.output-json).deploy_url }}
             - Logs: ${{ fromJSON(steps.netlify-deploy.outputs.output-json).logs }}
-
