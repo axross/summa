@@ -4,7 +4,27 @@ on:
 jobs:
   build:
     name: Build
-    uses: axross/summalify/.github/workflows/callable_build.yml@main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+      - name: Restore/cache npm packages
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-npm-packages
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install npm packages
+        run: npm ci
+      - name: Build
+        run: npm run build
   deploy:
     name: Deploy Snapshot
     runs-on: ubuntu-latest
