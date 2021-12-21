@@ -67,8 +67,8 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
         run: |
           output_json=$(npx --no-install netlify deploy --json)
-          echo "::debug::$output_json"
-# echo "::set-output name=output-json::$output_json"
+          echo $output_json
+          echo "::set-output name=output-json::$output_json"
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
         uses: peter-evans/find-comment@v1
