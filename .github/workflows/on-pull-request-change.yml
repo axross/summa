@@ -44,6 +44,21 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '14'
+      - name: Find Deploy Result Comment
+        id: find-deploy-result-comment
+        uses: peter-evans/find-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: has been deployed to Netlify.
+      - name: Update Deploy Result Comment - Started
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            :gear: Deploying `${{ github.event.pull_request.head.sha }}` has been started.
       - name: Restore/Cache npm Packages
         uses: actions/cache@v2
         env:
@@ -66,23 +81,26 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
         run: |
-          output_json=$(npx --no-install netlify deploy --json)
-          echo $output_json
-          echo "::set-output name=output-json::$output_json"
-      - name: Find Deploy Result Comment
-        id: find-deploy-result-comment
-        uses: peter-evans/find-comment@v1
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: has been deployed to Netlify. 
-      - name: Comment Deploy Result
+          echo "::set-output name=output-json::$(npx --no-install netlify deploy --json)"
+      - name: Update Deploy Result Comment - Finished
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
+          edit-mode: replace
           body: |
             :rocket: Commit `${{ github.event.pull_request.head.sha }}` has been deployed to Netlify.
             
             - URL: ${{ fromJSON(steps.netlify-deploy.outputs.output-json).deploy_url }}
             - Logs: ${{ fromJSON(steps.netlify-deploy.outputs.output-json).logs }}
+      - name: Update Deploy Result Comment - Failed
+        if: ${{ failure() }}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            :warning: Deploying `${{ github.event.pull_request.head.sha }}` has failed!
+
+            - GitHub Action: https://github.com/${{ github.repository }}/runs/${{ github.run_id }}
