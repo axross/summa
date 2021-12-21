@@ -11,7 +11,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: "14"
       - name: Restore/cache npm packages
         uses: actions/cache@v2
         env:
@@ -45,13 +45,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: "14"
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
         uses: peter-evans/find-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
+          comment-author: "github-actions[bot]"
           body-includes: "- Commit hash: "
           direction: last
       - name: Update Deploy Result Comment - Started
@@ -61,7 +61,7 @@ jobs:
           comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
           edit-mode: replace
           body: |
-            :gear: Deploying `${{ github.event.pull_request.head.sha }}` has been started.
+            :gear: Deployment has been started.
 
             - Commit hash: `${{ github.event.pull_request.head.sha }}`
       - name: Restore/Cache npm Packages
@@ -86,9 +86,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npx netlify deploy --json
-          echo "::set-output name=output_json::$(npx netlify deploy --json)"
+        run: echo "::set-output name=output_json::$(npx netlify deploy --json)"
       - name: Update Deploy Result Comment - Finished
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -97,7 +95,7 @@ jobs:
           edit-mode: replace
           body: |
             :rocket: The build has been deployed to Netlify.
-
+            
             - Commit hash: `${{ github.event.pull_request.head.sha }}`
             - URL: ${{ fromJSON(steps.netlify-deploy.outputs.output_json).deploy_url }}
             - Logs: ${{ fromJSON(steps.netlify-deploy.outputs.output_json).logs }}
@@ -110,6 +108,6 @@ jobs:
           edit-mode: replace
           body: |
             :warning: Deployment has failed!
-
+            
             - Commit hash: `${{ github.event.pull_request.head.sha }}`
             - GitHub Action: https://github.com/${{ github.repository }}/runs/${{ github.run_id }}
