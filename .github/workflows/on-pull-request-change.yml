@@ -50,7 +50,9 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: has been deployed to Netlify.
+          body-includes: |
+            - Build: ${{ github.ref_name }} (Commit hash: `${{ github.event.pull_request.head.sha }}`)
+          direction: last
       - name: Update Deploy Result Comment - Started
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -59,6 +61,8 @@ jobs:
           edit-mode: replace
           body: |
             :gear: Deploying `${{ github.event.pull_request.head.sha }}` has been started.
+
+            - Build: ${{ github.ref_name }} (Commit hash: `${{ github.event.pull_request.head.sha }}`)
       - name: Restore/Cache npm Packages
         uses: actions/cache@v2
         env:
@@ -89,8 +93,9 @@ jobs:
           comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
           edit-mode: replace
           body: |
-            :rocket: Commit `${{ github.event.pull_request.head.sha }}` has been deployed to Netlify.
-            
+            :rocket: The build has been deployed to Netlify.
+
+            - Build: ${{ github.ref_name }} (Commit hash: `${{ github.event.pull_request.head.sha }}`)
             - URL: ${{ fromJSON(steps.netlify-deploy.outputs.output_json).deploy_url }}
             - Logs: ${{ fromJSON(steps.netlify-deploy.outputs.output_json).logs }}
       - name: Update Deploy Result Comment - Failed
@@ -101,6 +106,7 @@ jobs:
           comment-id: ${{ steps.find-deploy-result-comment.outputs.comment-id }}
           edit-mode: replace
           body: |
-            :warning: Deploying `${{ github.event.pull_request.head.sha }}` has failed!
+            :warning: Deployment has failed!
 
+            - Build: ${{ github.ref_name }} (Commit hash: `${{ github.event.pull_request.head.sha }}`)
             - GitHub Action: https://github.com/${{ github.repository }}/runs/${{ github.run_id }}
