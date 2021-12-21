@@ -63,11 +63,11 @@ jobs:
           name: build-output
       - name: Deploy to Netlify
         id: netlify-deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
         run: |
-          output_json=$(npx --no-install netlify deploy --auth=${{ secrets.NETLIFY_ACCESS_TOKEN }} --json)
+          output_json=$(npx --no-install netlify deploy --json)
           echo "::debug::$output_json"
-# output_json="${output_json//$'\n'/\\n}"
-# echo "::debug::$output_json"
 # echo "::set-output name=output-json::$output_json"
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
