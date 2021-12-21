@@ -85,7 +85,8 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
         run: |
-          echo "::set-output name=output_json::$(npx netlify deploy --json)"
+          npx netlify deploy --json
+          echo "::set-output name=output_json::{}"
       - name: Update Deploy Result Comment - Finished
         uses: peter-evans/create-or-update-comment@v1
         with:
