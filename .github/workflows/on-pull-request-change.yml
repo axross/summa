@@ -86,7 +86,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: echo "::set-output name=output_json::$(npx netlify deploy --json)"
+        run: echo "::set-output name=output_json::$(npx netlify deploy --json | tr -d '\n')"
       - name: Debug
         run: |
           echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json).deploy_url }}"
