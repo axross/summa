@@ -88,7 +88,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: echo "::set-output name=output_json::$(npx netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
+        run: echo "::set-output name=output_json::$(npx --no-install netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
       - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
         with:
