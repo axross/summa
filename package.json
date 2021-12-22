@@ -21,6 +21,8 @@
     "@netlify/functions": "^0.10.0",
     "@remix-run/netlify": "^1.1.1",
     "@remix-run/react": "^1.1.1",
+    "@semantic-release/exec": "^6.0.3",
+    "conventional-changelog-conventionalcommits": "^4.6.1",
     "date-fns": "^2.27.0",
     "firebase": "^9.6.1",
     "firebase-admin": "^10.0.1",
@@ -32,6 +34,7 @@
     "react-hot-toast": "^2.1.1",
     "react-router-dom": "^6.2.1",
     "remix": "^1.1.1",
+    "semantic-release": "^18.0.1",
     "tailwind-merge": "^1.1.1",
     "zod": "^3.11.6"
   },
