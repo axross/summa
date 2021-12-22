@@ -86,6 +86,8 @@ const AppWrapper: React.VFC = () => {
   const { env, customToken } = useLoaderData<LoaderData>();
 
   React.useEffect(() => {
+    console.log(env);
+
     (globalThis as any).__ENV__ = { version: env.version };
   }, [env]);
 
