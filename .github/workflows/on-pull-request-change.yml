@@ -28,7 +28,10 @@ jobs:
       - name: Build
         env:
           VERSION: ${{ github.event.pull_request.head.sha }}
-        run: npm run build
+        run: |
+          npm i -g netlify-cli
+          npm run build
+          npx netlify build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -36,6 +39,7 @@ jobs:
           path: |
             netlify
             public
+            .netlify
   deploy:
     name: Deploy
     runs-on: ubuntu-latest

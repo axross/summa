@@ -32,7 +32,6 @@
     "react-hot-toast": "^2.1.1",
     "react-router-dom": "^6.2.1",
     "remix": "^1.1.1",
-    "semantic-release": "^18.0.1",
     "tailwind-merge": "^1.1.1",
     "zod": "^3.11.6"
   },
@@ -49,7 +48,6 @@
     "dotenv": "^10.0.0",
     "postcss": "^8.4.5",
     "postcss-cli": "^9.1.0",
-    "semantic-release": "^18.0.1",
     "tailwindcss": "^3.0.7",
     "typescript": "^4.5.4"
   },
