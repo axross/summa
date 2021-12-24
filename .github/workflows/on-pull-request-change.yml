@@ -26,6 +26,8 @@ jobs:
       - name: Install npm packages
         run: npm ci
       - name: Build
+        env:
+          VERSION: ${{ github.event.pull_request.head.sha }}
         run: npm run build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
@@ -35,7 +37,7 @@ jobs:
             netlify
             public
   deploy:
-    name: Deploy Snapshot
+    name: Deploy
     runs-on: ubuntu-latest
     needs:
       - build
@@ -46,6 +48,19 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "14"
+      - name: Restore/cache npm packages
+        uses: actions/cache@v2
+        env:
+          cache-name: npm-packages
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install npm packages
+        run: npm ci
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
         uses: peter-evans/find-comment@v1
@@ -64,19 +79,6 @@ jobs:
             :gear: Deployment has been started.
 
             - Commit hash: `${{ github.event.pull_request.head.sha }}`
-      - name: Restore/Cache npm Packages
-        uses: actions/cache@v2
-        env:
-          cache-name: npm-packages
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install npm Packages
-        run: npm ci
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
@@ -86,14 +88,8 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: echo "::set-output name=output_json::$(npx netlify deploy --json | tr -d '\n')"
-      - name: Debug
-        run: |
-          echo "${{ steps.netlify-deploy.outputs.output_json }}"
-          echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json) }}"
-          echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json).deploy_url }}"
-          echo "${{ fromJSON(steps.netlify-deploy.outputs.output_json).logs }}"
-      - name: Update Deploy Result Comment - Finished
+        run: echo "::set-output name=output_json::$(npx --no-install netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
+      - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
