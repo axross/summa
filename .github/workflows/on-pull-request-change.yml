@@ -48,19 +48,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "14"
-      - name: Restore/cache npm packages
-        uses: actions/cache@v2
-        env:
-          cache-name: npm-packages
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install npm packages
-        run: npm ci
       - name: Find Deploy Result Comment
         id: find-deploy-result-comment
         uses: peter-evans/find-comment@v1
@@ -88,7 +75,9 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: echo "::set-output name=output_json::$(npx --no-install netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
+        run: |
+          npm i -g netlify-cli
+          echo "::set-output name=output_json::$(npx --no-install netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
       - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
         with:

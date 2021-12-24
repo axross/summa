@@ -50,19 +50,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "14"
-      - name: Restore/cache npm packages
-        uses: actions/cache@v2
-        env:
-          cache-name: npm-packages
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install npm packages
-        run: npm ci
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
@@ -72,7 +59,9 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --no-install netlify deploy --prod --message $GITHUB_SHA
+        run: |
+          npm i -g netlify-cli
+          npx --no-install netlify deploy --prod --message $GITHUB_SHA
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -85,20 +74,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "14"
-      - name: Restore/cache npm packages
-        uses: actions/cache@v2
-        env:
-          cache-name: npm-packages
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install npm packages
-        run: npm ci
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: npx --no-install semantic-release
+        run: |
+          npm i -g semantic-release conventional-changelog-conventionalcommits
+          npx --no-install semantic-release
