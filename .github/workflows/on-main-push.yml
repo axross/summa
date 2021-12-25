@@ -30,6 +30,7 @@ jobs:
       - name: Build
         env:
           VERSION: ${{ env.GITHUB_SHA }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           npm i -g netlify-cli
