@@ -25,15 +25,14 @@ jobs:
             ${{ runner.os }}-
       - name: Install npm packages
         run: npm ci
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
       - name: Build
         env:
           VERSION: ${{ github.event.pull_request.head.sha }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npm i -g netlify-cli
-          npm run build
-          npx netlify build
+        run: npx netlify build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -76,15 +75,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
       - name: Deploy to Netlify
         id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npm i -g netlify-cli
-          npx --no-install netlify deploy --build false --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json
-          echo "::set-output name=output_json::$(npx --no-install netlify deploy --build false --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
+        run: echo "::set-output name=output_json::$(npx --no-install netlify deploy --build false --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
       - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
         with:
