@@ -31,8 +31,8 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          npm i -g netlify-cli &&
-          npm run build &&
+          npm i -g netlify-cli
+          npm run build
           npx netlify build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
