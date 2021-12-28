@@ -83,6 +83,7 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           npm i -g netlify-cli
+          npx --no-install netlify deploy --build false --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json
           echo "::set-output name=output_json::$(npx --no-install netlify deploy --build false --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
       - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
