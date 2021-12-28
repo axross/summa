@@ -27,15 +27,14 @@ jobs:
             ${{ runner.os }}-
       - name: Install npm packages
         run: npm ci
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
       - name: Build
         env:
           VERSION: ${{ env.GITHUB_SHA }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npm i -g netlify-cli
-          npm run build
-          npx netlify build
+        run: npx netlify build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -60,14 +59,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
       - name: Deploy to Netlify
         id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npm i -g netlify-cli
-          npx --no-install netlify deploy --build false --prod --message $GITHUB_SHA
+        run: npx --no-install netlify deploy --build false --prod --message $GITHUB_SHA
   release:
     name: Release
     runs-on: ubuntu-latest
