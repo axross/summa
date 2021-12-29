@@ -59,14 +59,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: build
-      - name: Install Netlify CLI
-        run: npm i -g netlify-cli
       - name: Deploy to Netlify
         id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --no-install netlify deploy --prod --message $GITHUB_SHA
+        run: |
+          npm i -g netlify-cli
+          npx --no-install netlify deploy --prod --message $GITHUB_SHA
   release:
     name: Release
     runs-on: ubuntu-latest
