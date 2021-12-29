@@ -66,7 +66,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --no-install netlify deploy --build false --prod --message $GITHUB_SHA
+        run: npx --no-install netlify deploy --prod --message $GITHUB_SHA
   release:
     name: Release
     runs-on: ubuntu-latest
