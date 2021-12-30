@@ -1,0 +1,51 @@
+name: on Push to Main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    uses: axross/summalify/.github/workflows/callable-build.yml@main
+    with:
+      version: $GITHUB_SHA
+    secrets:
+      netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+      - name: Deploy to Netlify
+        id: netlify-deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: npx -p netlify-cli -p @remix-run/netlify netlify deploy --prod --message $GITHUB_SHA
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npx -p semantic-release -p conventional-changelog-conventionalcommits semantic-release

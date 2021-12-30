@@ -30,6 +30,7 @@ import { FirebaseProvider } from "~/hooks/use-firebase";
 import globalCssUrl from "~/global.css";
 
 interface Env {
+  build: string;
   firebaseProjectId: string;
   firebaseAppId: string;
   firebaseApiKey: string;
@@ -49,6 +50,7 @@ export const loader: LoaderFunction = async ({
   context,
 }): Promise<LoaderData> => {
   const env = {
+    build: process.env.BUILD as string,
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID as string,
     firebaseAppId: process.env.FIREBASE_APP_ID as string,
     firebaseApiKey: process.env.FIREBASE_API_KEY as string,
@@ -82,6 +84,12 @@ export const links: LinksFunction = () => [
 
 const AppWrapper: React.VFC = () => {
   const { env, customToken } = useLoaderData<LoaderData>();
+
+  React.useEffect(() => {
+    console.log(env);
+
+    (globalThis as any).__ENV__ = { build: env.build };
+  }, [env]);
 
   return (
     <FirebaseProvider

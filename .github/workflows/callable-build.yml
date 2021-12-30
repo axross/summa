@@ -1,0 +1,51 @@
+name: Build
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "The build version"
+        required: false
+        type: string
+    secrets:
+      netlify-auth-token:
+        required: true
+      netlify-site-id:
+        required: true
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+      - name: Restore/cache npm packages
+        uses: actions/cache@v2
+        env:
+          cache-name: npm-packages
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install npm packages
+        run: npm ci
+      - name: Build
+        env:
+          VERSION: ${{ inputs.version }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.netlify-auth-token }}
+          NETLIFY_SITE_ID: ${{ secrets.netlify-site-id }}
+        run: npx -p netlify-cli netlify build
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: |
+            netlify
+            public
+            .netlify
