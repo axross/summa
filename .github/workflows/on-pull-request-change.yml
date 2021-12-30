@@ -25,14 +25,12 @@ jobs:
             ${{ runner.os }}-
       - name: Install npm packages
         run: npm ci
-      - name: Install Netlify CLI
-        run: npm i -g netlify-cli
       - name: Build
         env:
           VERSION: ${{ github.event.pull_request.head.sha }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx netlify build
+        run: npx -p netlify-cli netlify build
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -80,9 +78,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          npm i -g netlify-cli
-          echo "::set-output name=output_json::$(npx --no-install netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
+        run: echo "::set-output name=output_json::$(npx -p netlify-cli -p @remix-run/netlify netlify deploy --alias \"${{ github.event.pull_request.head.sha }}\" --message \"${{ github.event.pull_request.head.sha }}\" --json | tr -d '\n')"
       - name: Update Deploy Result Comment - Success
         uses: peter-evans/create-or-update-comment@v1
         with:
